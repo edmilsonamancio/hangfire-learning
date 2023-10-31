@@ -19,13 +19,13 @@ namespace HangFire.Application
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddScoped<IHangService, HangService>();
+            builder.Services.AddSingleton<IHangService, HangService>();
 
 
             builder.Services.AddHangFireConfiguration();
             
             var _fireService = builder.Services.BuildServiceProvider().GetService<IHangService>();
-
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -36,6 +36,7 @@ namespace HangFire.Application
             }
 
             app.UseHangfireDashboard();
+            RecurringJob.AddOrUpdate(() => _fireService.JobRecorrente(), Cron.MinuteInterval(2));
 
             app.UseHttpsRedirection();
 
@@ -44,8 +45,6 @@ namespace HangFire.Application
             app.MapControllers();
 
             app.Run();
-
-            // RecurringJob.AddOrUpdate(() => _fireService.JobRecorrente(), Cron.MinuteInterval(2));
         }
     }
 }
